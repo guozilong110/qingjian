@@ -2,14 +2,15 @@
 
 use objc2::MainThreadMarker;
 use objc2::rc::Retained;
-use objc2_app_kit::{NSButton, NSPopUpButton};
+use objc2_app_kit::{NSButton, NSPopUpButton, NSTextField};
+use objc2_foundation::NSString;
 use qingjian_core::{Language, ShuangpinScheme};
 use qingjian_platform::{Config, MAX_PAGE_SIZE};
 
 use crate::preferences::controls::{
-    checkbox, language_label, note, row_checkbox, row_popup, select, set_checked,
+    button, checkbox, language_label, note, note_live, row_checkbox, row_popup, select, set_checked,
 };
-use crate::preferences::layout::Layout;
+use crate::preferences::layout::{Layout, PAGE_PADDING, ROW_HEIGHT};
 use crate::preferences::setting::Setting;
 use crate::preferences::target::PreferencesTarget;
 
@@ -34,6 +35,12 @@ pub struct GeneralPage {
 
     /// 中英混输时中文候选排在英文词前。
     chinese_first: Retained<NSButton>,
+
+    /// 高亮候选停住时读英语发音。
+    speak: Retained<NSButton>,
+
+    /// 发音缓存的状态（缓存了多少词、占多少空间）。
+    cache_status: Retained<NSTextField>,
 
     /// 学习语言弹出菜单里各项对应的语言。
     languages: Vec<Language>,
@@ -145,6 +152,27 @@ impl GeneralPage {
             mtm,
             "勾上后整段输入是英文词时（hello、key）英文词排第二，空格上屏的仍是中文；不勾（缺省）拼音不成立的输入英文词排第一。",
         );
+        let speak = checkbox(
+            mtm,
+            "读出高亮候选的英语发音",
+            Setting::SpeakCandidate,
+            target,
+        );
+        row_checkbox(layout, &speak);
+        note(
+            layout,
+            mtm,
+            "高亮停住约三分之一秒才读，连着翻候选不会出声；中文候选读第一个英语译词，英文候选读词本身。要学习语言选英语，密码框里不发音。",
+        );
+        note(
+            layout,
+            mtm,
+            "本机没有的词会向维基共享资源（Wikimedia Commons）请求一次该词的发音，下载后存在本机，之后不再联网；发音是真人朗读。",
+        );
+        let cache_status = note_live(layout, mtm, "发音缓存：还没有下载过发音");
+        let clear_cache = button(mtm, "清空发音缓存", Setting::ClearAudioCache, target);
+        layout.place(&clear_cache, PAGE_PADDING, 160.0, ROW_HEIGHT + 4.0);
+        layout.next_row(ROW_HEIGHT + 4.0);
         Self {
             learning_language,
             page_size,
@@ -153,12 +181,15 @@ impl GeneralPage {
             english,
             english_off_in_apps,
             chinese_first,
+            speak,
+            cache_status,
             languages: languages.to_vec(),
             punctuation,
         }
     }
 
-    pub fn sync(&self, config: &Config) {
+    /// `audio_cache` 是（缓存词数, 占用字节）。
+    pub fn sync(&self, config: &Config, audio_cache: (usize, u64)) {
         let general = &config.general;
         select(
             &self.punctuation,
@@ -193,5 +224,16 @@ impl GeneralPage {
         self.english_off_in_apps
             .setEnabled(general.english_candidates);
         set_checked(&self.chinese_first, general.chinese_first);
+        set_checked(&self.speak, general.speak_candidate);
+        // 发音只对英语译词有意义：学习语言不是英语时这个开关置灰
+        self.speak
+            .setEnabled(general.learning_language.trim().eq_ignore_ascii_case("en"));
+        let (words, bytes) = audio_cache;
+        let text = if words == 0 {
+            "发音缓存：还没有下载过发音".to_owned()
+        } else {
+            format!("发音缓存：{words} 个词，{:.1} MB", bytes as f64 / 1e6)
+        };
+        self.cache_status.setStringValue(&NSString::from_str(&text));
     }
 }

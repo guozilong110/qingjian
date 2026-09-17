@@ -12,6 +12,7 @@ mod host;
 mod imk;
 mod menubar;
 mod preferences;
+mod speech;
 
 use objc2::{AnyThread, ClassType, MainThreadMarker};
 use objc2_app_kit::NSApplication;

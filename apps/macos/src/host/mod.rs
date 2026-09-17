@@ -14,6 +14,7 @@ mod model;
 mod presenting;
 mod session;
 mod settings;
+mod speaking;
 
 use std::cell::RefCell;
 use std::path::PathBuf;
@@ -45,6 +46,7 @@ use crate::candidates::{CandidateWindow, Frame, Preedit, Row};
 use crate::error::HostError;
 use crate::menubar::{InputMenu, MenuAction, ModeIndicator};
 use crate::preferences::{PreferencesWindow, Setting, SettingValue};
+use crate::speech::{Downloader, SpeakMonitor, Speaker};
 
 use cloud::{CloudTestMonitor, PredictMonitor};
 use config::{ConfigWatch, TextReplacement};
@@ -137,6 +139,18 @@ pub struct Host {
     /// 英文模式是否给英文候选（配置 `[general] english_candidates`）。
     pub english_candidates: bool,
 
+    /// 高亮候选停住时读它的英语发音（配置 `[general] speak_candidate`）。
+    pub speak_candidate: bool,
+
+    /// 单词发音：缓存 / 整包库的查询与播放。
+    pub speaker: Speaker,
+
+    /// 发音的防抖与下载轮询定时器。
+    pub speak: SpeakMonitor,
+
+    /// 发音下载线程；建不起来时为 `None`（只用本地已有的）。
+    pub downloader: Option<Downloader>,
+
     /// 上次从系统读到的文本替换（激活输入法时重读），`[general] system_text_replacements` 开着时并进自定义短语。
     text_replacements: Vec<TextReplacement>,
 
@@ -191,7 +205,6 @@ const VOCABULARY_FILE: &str = "user-vocab.tsv";
 /// 可能打进包里的释义表语言，按这个顺序在设置里列出；文件不存在的不列。
 const GLOSSARY_LANGUAGES: [Language; 3] =
     [Language::English, Language::Japanese, Language::Spanish];
-
 /// 在单例上执行操作。未初始化、不在主线程、或正处在另一次 `with` 之内（重入）时返回 `None`。
 ///
 /// 重入是真会发生的：闭包里若碰了应用那边的东西（读上下文、取光标位置、插入文字），IMK 会在等应用回话时

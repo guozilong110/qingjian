@@ -175,6 +175,10 @@ font = ""
 preedit = "both"
 # 英文模式（Caps Lock 亮着）是否给英文候选：Tab 或方向键选词，空格、回车、标点仍原样上屏敲的字母；false 就是纯直通
 english_candidates = true
+# 高亮的候选停住不动（约三分之一秒）时读它的英语发音：中文候选读第一个英语译词，英文候选读词本身。
+# 要学习语言是 en。本机没有的词会向维基共享资源（Wikimedia Commons）请求一次该词的真人录音，
+# 下载后存在 audio-cache/ 目录里，之后不再联网；密码框（安全输入）里既不发音也不请求
+speak_candidate = false
 
 # 繁体输出模式。开启后上屏繁体，不影响词库和个人词频的简体记录。
 traditional = false

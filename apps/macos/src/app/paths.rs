@@ -58,3 +58,21 @@ pub fn model_path() -> Option<PathBuf> {
     }
     qingjian_neural::find_model(&resources_dir().ok()?.join("model"))
 }
+
+/// 按需下载的发音缓存目录：`~/Library/Application Support/Qingjian/audio-cache/`。
+///
+/// 发音不随包（词表太大、且常用词因人而异），一律按需下载到这里。
+pub fn audio_cache_dir() -> Option<PathBuf> {
+    Some(user_data_dir()?.join(qingjian_audio::CACHE_DIR))
+}
+
+/// 整包发音库（`audio-en.qj`）：用户自己放一份或从别处拿来的，有就用；没有只靠缓存。
+/// 用户目录优先于包里（包缺省不带，见 `bundle.sh`）。
+pub fn audio_library_path() -> Option<PathBuf> {
+    let user = user_data_dir()?.join(qingjian_audio::FILE_NAME);
+    if user.is_file() {
+        return Some(user);
+    }
+    let bundled = resources_dir().ok()?.join(qingjian_audio::FILE_NAME);
+    bundled.is_file().then_some(bundled)
+}

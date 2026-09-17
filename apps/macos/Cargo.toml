@@ -13,6 +13,9 @@ objc2-foundation.workspace = true
 objc2-input-method-kit.workspace = true
 objc2-core-foundation.workspace = true
 objc2-core-text.workspace = true
+objc2-avf-audio.workspace = true
+tokio.workspace = true
+qingjian-audio = { workspace = true, features = ["fetch"] }
 qingjian-core.workspace = true
 qingjian-dictionary.workspace = true
 qingjian-learning.workspace = true

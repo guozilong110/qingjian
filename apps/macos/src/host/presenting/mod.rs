@@ -73,6 +73,8 @@ impl Host {
         let page_size = self.page_size.min(self.window.max_rows()).max(1);
         self.session
             .reset(preedit, candidates, page_size, self.cloud_slots);
+        // 候选换了：上一个词的发音不再算数，同一个词重新敲出来该再读一次
+        self.reset_speech();
     }
 
     /// 按会话状态画候选窗口。候选为空且没有 preedit 时收窗。
@@ -110,6 +112,8 @@ impl Host {
             .flatten();
         if rows.is_empty() && self.session.preedit.is_none() {
             self.window.hide();
+            // 收窗了就不该再出声（上屏、Esc 清空都走这里）
+            self.reset_speech();
             return;
         }
         let pages = self.session.pages();
@@ -123,5 +127,7 @@ impl Host {
             status: self.status.clone(),
         };
         self.window.show(frame, self.anchor);
+        // 窗已经在屏幕上了再起防抖：停住不动约三分之一秒才读，连着翻候选不会一格一声
+        self.schedule_speech();
     }
 }

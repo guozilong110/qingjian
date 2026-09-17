@@ -35,6 +35,10 @@ pub const ATTRIBUTIONS: &[(&str, &str)] = &[
         "词汇等级",
         "The CEFR-J Wordlist Version 1.5（Yukio Tono，Tokyo University of Foreign Studies，cefr-j.org）；Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）；JLPT 词表（tanos.co.uk，CC BY；经 elzup/jlpt-word-list 整理，MIT）。",
     ),
+    (
+        "单词发音",
+        "不随包：开着发音时按需从维基共享资源（Wikimedia Commons）下载真人录音，存在本机的 audio-cache 目录。多为 CC BY-SA / CC BY / CC0 / 公有领域，逐条许可与录音人可用下面的「导出发音署名清单」导出。",
+    ),
 ];
 
 /// 官网。
@@ -44,7 +48,7 @@ pub const WEBSITE_URL: &str = "https://qingjian.app";
 pub const REPOSITORY_URL: &str = "https://github.com/qingjian-team";
 
 /// 隐私说明。
-pub const PRIVACY_NOTE: &str = "青简不上传任何数据。开着云联想或翻译时，光标附近的文字与拼音会发给你在「云服务」页填的 AI 服务商（缺省 DeepSeek）的服务器，不经过作者。「高级」页的输入日志只写在这台电脑的数据目录里，可以关掉或清空。";
+pub const PRIVACY_NOTE: &str = "青简不上传任何数据。开着云联想或翻译时，光标附近的文字与拼音会发给你在「云服务」页填的 AI 服务商（缺省 DeepSeek）的服务器，不经过作者。开着「读出高亮候选的英语发音」时，本机还没有的那个英文词会发给维基共享资源（Wikimedia Commons）以取回它的发音文件，下载后存在本机、之后不再联网；密码框里不发音也不请求。「高级」页的输入日志只写在这台电脑的数据目录里，可以关掉或清空。";
 
 /// 反馈方式。
 pub const FEEDBACK_NOTE: &str = "遇到问题点「打包日志到桌面」，把生成的 zip 发给作者即可（含日志与配置文件，不含密钥），再附上「复制诊断信息」的内容。缺省日志不含你敲的内容；排查排序问题时作者可能请你在「高级」页临时打开详细日志。";
@@ -99,4 +103,13 @@ pub fn build(
     layout.place(&export, PAGE_PADDING + 160.0, 150.0, ROW_HEIGHT + 4.0);
     layout.place(&copy, PAGE_PADDING + 320.0, 150.0, ROW_HEIGHT + 4.0);
     layout.next_row(ROW_HEIGHT + 4.0);
+    // 发音是按需下载的，署名清单不能像随包数据那样写死在上面那张表里
+    let credits = button(mtm, "导出发音署名清单", Setting::ExportAudioCredits, target);
+    layout.place(&credits, PAGE_PADDING, 200.0, ROW_HEIGHT + 4.0);
+    layout.next_row(ROW_HEIGHT + 4.0);
+    note_full(
+        layout,
+        mtm,
+        "把本机已下载的发音逐条列出（词、许可证、录音人、来源页）写到桌面：真人录音多为 CC BY-SA，要求署名。",
+    );
 }

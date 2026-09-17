@@ -342,6 +342,9 @@ impl Host {
             (Setting::EnglishCandidates, SettingValue::Bool(on)) => {
                 self.settings.set_bool("general", "english_candidates", on);
             }
+            (Setting::SpeakCandidate, SettingValue::Bool(on)) => {
+                self.settings.set_bool("general", "speak_candidate", on);
+            }
             (Setting::ChineseFirst, SettingValue::Bool(on)) => {
                 self.settings.set_bool("general", "chinese_first", on);
             }
@@ -407,6 +410,18 @@ impl Host {
             }
             (Setting::ClearInputLog, _) => {
                 self.clear_input_log();
+                return;
+            }
+            (Setting::ExportAudioCredits, _) => {
+                self.export_audio_credits();
+                return;
+            }
+            (Setting::ClearAudioCache, _) => {
+                let count = self.speaker.clear_cache();
+                tracing::info!(words = count, "发音缓存已清空");
+                self.preferences
+                    .set_status(&format!("已清空发音缓存（{count} 个词）"));
+                self.apply_config(false);
                 return;
             }
             (Setting::VerboseLog, SettingValue::Bool(on)) => {
