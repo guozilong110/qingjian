@@ -32,6 +32,17 @@ impl Host {
         self.page_keys = config.general.page_keys();
         self.preedit_mode = config.general.preedit;
         self.english_candidates = config.general.english_candidates;
+        self.speak_candidate = config.general.speak_candidate;
+        if self.speak_candidate {
+            // 开关打开才起下载线程：不发音就不应该有一个等着发网络请求的线程
+            if self.downloader.is_none() {
+                self.downloader = Downloader::start();
+            }
+        } else {
+            // 关掉：停声、收线程（丢掉发送端，线程自然退出）
+            self.downloader = None;
+            self.reset_speech();
+        }
         self.apps = config.apps.clone();
         self.window.set_theme(config.general.theme);
         self.window.set_layout(config.general.layout);
@@ -95,6 +106,7 @@ impl Host {
             key_present,
             self.settings.error(),
             &self.dictionary_list,
+            self.speaker.cache_stats(),
         );
     }
 

@@ -197,6 +197,18 @@ pub enum Command {
         /// `glossary` 专用：释义表的语言代码（en / ja / zh / es），决定输出文件名 glossary-<语言>.qj
         #[arg(long, default_value = "en")]
         language: String,
+
+        /// `audio` 专用：合成音目录（Kokoro 生成的 .opus）。`--input` 那个目录是真人录音，两边都有的词取真人的
+        #[arg(long)]
+        synthetic: Option<PathBuf>,
+
+        /// `audio` 专用：真人录音的 manifest.tsv（`pronunciation_fetch.py` 写的），署名清单从它生成
+        #[arg(long)]
+        manifest: Option<PathBuf>,
+
+        /// `audio` 专用：只收这份词表里的词（一行一个或 TSV 取第一列），控体积用；不给就全收
+        #[arg(long)]
+        words: Option<PathBuf>,
     },
 }
 
@@ -214,4 +226,7 @@ pub enum PackKind {
 
     /// 本地整句模型（三件套目录 → model.qjm）
     Model,
+
+    /// 单词发音库（归一过的 .opus 目录 → audio-en.qj）
+    Audio,
 }

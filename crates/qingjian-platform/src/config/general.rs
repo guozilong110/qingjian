@@ -48,6 +48,10 @@ pub struct GeneralConfig {
     /// 英文模式（Caps Lock 亮着）是否给英文候选（补全与拼错纠正）。关掉就是纯直通。
     pub english_candidates: bool,
 
+    /// 高亮的候选停住不动时读它的英语发音（要装发音库、学习语言是 en 才生效）。
+    /// 缺省关：输入法一直出声会很快让人关掉，想边打边听的自己开。
+    pub speak_candidate: bool,
+
     /// 繁体输出模式。
     pub traditional: bool,
     /// 中文模式下中英混输时中文候选总排在英文词前面。缺省关：拼音不像话的输入（`hello`）英文词排第一，
@@ -93,6 +97,7 @@ impl Default for GeneralConfig {
             font: String::new(),
             preedit: PreeditMode::default(),
             english_candidates: true,
+            speak_candidate: false,
             traditional: false,
             chinese_first: false,
             full_width_punctuation: true,

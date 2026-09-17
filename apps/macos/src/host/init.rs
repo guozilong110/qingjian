@@ -150,6 +150,16 @@ pub fn init(mtm: MainThreadMarker, info: &BundleInfo) -> Result<(), HostError> {
             notice: None,
             preedit_mode: PreeditMode::default(),
             english_candidates: true,
+            speak_candidate: false,
+            speaker: match paths::audio_cache_dir() {
+                Some(dir) => Speaker::new(&dir, paths::audio_library_path().as_deref()),
+                None => {
+                    tracing::warn!("取不到发音缓存目录，不发音");
+                    Speaker::default()
+                }
+            },
+            speak: SpeakMonitor::new(mtm),
+            downloader: None,
             text_replacements: Vec::new(),
             apps: AppsConfig::default(),
             monitor,

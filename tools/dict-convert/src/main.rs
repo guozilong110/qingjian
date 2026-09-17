@@ -7,12 +7,14 @@
 //! - `bigram`：纯文本语料（如 `tools/corpus/parquet_to_text.py` 转出的中文维基 CC BY-SA 4.0、LCCC 对话 MIT）→ `lm-unigram.tsv` + `lm-bigram.tsv`
 //! - `mine`：语料里分词落成连续单字的段 → `oov-candidates.tsv`（词库没收的高频词，标音后用 `lexicon --extra-words` 并入）
 //! - `phrases`：bigram 表的相邻两词 + 语料的相邻三词 → `phrases.tsv`（我的 / 不知道 这类短语层，读音由成分词拼出，同样用 `lexicon --extra-words` 并入）
-//! - `pack dict|lm|glossary|model`：TSV → `.qj` 容器（`dict.qj` / `lm.qj`），带名称 / 许可证 / 署名元数据，输入法与 CLI 优先加载它；
-//!   `model` 把本地整句模型的三件套目录打成一个 `model.qjm`
+//! - `pack dict|lm|glossary|model|audio`：TSV → `.qj` 容器（`dict.qj` / `lm.qj`），带名称 / 许可证 / 署名元数据，输入法与 CLI 优先加载它；
+//!   `model` 把本地整句模型的三件套目录打成一个 `model.qjm`；`audio` 把归一过的 `.opus` 目录打成 `audio-en.qj`
+//!   （真人录音优先、合成音补缺，同时写署名清单）
 //!
 //! 输出默认写到仓库根目录 `data/generated/`（gitignore）。
 
 mod args;
+mod audio;
 mod bigram;
 mod cedict;
 mod emoji;
@@ -138,10 +140,18 @@ fn run() -> Result<(), ConvertError> {
             source,
             data_version,
             language,
+            synthetic,
+            manifest,
+            words,
         } => pack::pack(
             kind,
             &input,
             &language,
+            &pack::AudioInputs {
+                synthetic,
+                manifest,
+                words,
+            },
             qingjian_format::Metadata {
                 name,
                 license,

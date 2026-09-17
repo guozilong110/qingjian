@@ -125,6 +125,9 @@ if [[ -f data/generated/dict.tsv || -f data/generated/dict.qj ]]; then
   done
   echo "使用 data/generated/ 的产品数据（自建词库）"
 fi
+# 单词发音不随包：词表太大（全量约 187 MB）、常用词又因人而异，改成按需下载到
+# ~/Library/Application Support/Qingjian/audio-cache/。想带一份现成的整包库（audio-en.qj）时，
+# 放到用户数据目录即可，壳会优先用它；见 docs/notes/pronunciation.md
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 # 图标：应用图标从 assets/icon/logo.png 生成 .icns；输入法菜单图标直接用 assets/icon/menu.pdf（矢量，随 Info.plist 的 TISIconIsTemplate 按深浅色反色）

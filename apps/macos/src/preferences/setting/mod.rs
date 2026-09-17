@@ -104,6 +104,15 @@ pub enum Setting {
     /// `[general] english_candidates`，勾选框。
     EnglishCandidates,
 
+    /// `[general] speak_candidate`，勾选框：高亮候选停住时读英语发音。
+    SpeakCandidate,
+
+    /// 「通用」页「清空发音缓存」按钮。
+    ClearAudioCache,
+
+    /// 「关于」页「导出发音署名清单」按钮：把缓存里每条录音的许可证与录音人写成 Markdown。
+    ExportAudioCredits,
+
     /// `[general] chinese_first`，勾选框：中英混输时中文候选排在英文词前。
     ChineseFirst,
 
@@ -192,6 +201,9 @@ impl Setting {
             Self::Layout => 12,
             Self::Preedit => 13,
             Self::EnglishCandidates => 14,
+            Self::SpeakCandidate => 49,
+            Self::ClearAudioCache => 50,
+            Self::ExportAudioCredits => 51,
             Self::ChineseFirst => 42,
             Self::TranslationKeys => 15,
             Self::TranslationSecondKeys => 16,
@@ -250,6 +262,9 @@ impl Setting {
             12 => Self::Layout,
             13 => Self::Preedit,
             14 => Self::EnglishCandidates,
+            49 => Self::SpeakCandidate,
+            50 => Self::ClearAudioCache,
+            51 => Self::ExportAudioCredits,
             42 => Self::ChineseFirst,
             15 => Self::TranslationKeys,
             16 => Self::TranslationSecondKeys,
@@ -321,6 +336,9 @@ mod tests {
             Setting::Layout,
             Setting::Preedit,
             Setting::EnglishCandidates,
+            Setting::SpeakCandidate,
+            Setting::ClearAudioCache,
+            Setting::ExportAudioCredits,
             Setting::TranslationKeys,
             Setting::TranslationSecondKeys,
             Setting::TranslateSelectionKeys,

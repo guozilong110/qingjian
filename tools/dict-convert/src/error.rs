@@ -20,6 +20,9 @@ pub enum ConvertError {
     #[error(transparent)]
     Neural(#[from] qingjian_neural::NeuralError),
 
+    #[error(transparent)]
+    Audio(#[from] qingjian_audio::AudioError),
+
     /// 文件不是预期格式。
     #[error("{path}:{line}: {reason}")]
     Format {

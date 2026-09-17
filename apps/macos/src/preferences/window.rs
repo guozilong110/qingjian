@@ -213,15 +213,17 @@ impl PreferencesWindow {
     }
 
     /// 按配置刷新所有控件。`key_present` 是密钥已经有了（环境或配置里）；密钥框永远不回显值。
+    /// `audio_cache` 是发音缓存的（词数, 占用字节）。
     pub fn sync(
         &self,
         config: &Config,
         key_present: bool,
         error: Option<&str>,
         dictionaries: &[DictionaryInfo],
+        audio_cache: (usize, u64),
     ) {
         self.dictionaries.rebuild(dictionaries);
-        self.general.sync(config);
+        self.general.sync(config, audio_cache);
         self.candidates.sync(config);
         self.shortcuts.sync(config);
         self.phrases.sync(config);
