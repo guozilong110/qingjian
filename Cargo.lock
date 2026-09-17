@@ -2047,6 +2047,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "objc2-audio-toolbox"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6948501a91121d6399b79abaa33a8aa4ea7857fe019f341b8c23ad6e81b79b08"
+dependencies = [
+ "bitflags 2.13.1",
+ "block2",
+ "objc2",
+ "objc2-foundation",
+]
+
+[[package]]
+name = "objc2-avf-audio"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13a380031deed8e99db00065c45937da434ca987c034e13b87e4441f9e4090be"
+dependencies = [
+ "bitflags 2.13.1",
+ "block2",
+ "objc2",
+ "objc2-audio-toolbox",
+ "objc2-core-audio-types",
+ "objc2-foundation",
+]
+
+[[package]]
 name = "objc2-cloud-kit"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2055,6 +2081,16 @@ dependencies = [
  "bitflags 2.13.1",
  "objc2",
  "objc2-foundation",
+]
+
+[[package]]
+name = "objc2-core-audio-types"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a89f2ec274a0cf4a32642b2991e8b351a404d290da87bb6a9a9d8632490bd1c"
+dependencies = [
+ "bitflags 2.13.1",
+ "objc2",
 ]
 
 [[package]]
@@ -2495,6 +2531,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d8f70e07b9c3962945a74e59ca1c511bba65b6419468acc217c457d93f3c740"
 
 [[package]]
+name = "qingjian-audio"
+version = "0.1.1"
+dependencies = [
+ "qingjian-format",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.20",
+ "tokio",
+ "tracing",
+ "zerocopy",
+]
+
+[[package]]
 name = "qingjian-cli"
 version = "0.1.1"
 dependencies = [
@@ -2535,6 +2585,7 @@ name = "qingjian-dict-convert"
 version = "0.1.1"
 dependencies = [
  "clap",
+ "qingjian-audio",
  "qingjian-core",
  "qingjian-dictionary",
  "qingjian-format",
@@ -2620,11 +2671,13 @@ dependencies = [
  "jiff",
  "objc2",
  "objc2-app-kit",
+ "objc2-avf-audio",
  "objc2-core-foundation",
  "objc2-core-text",
  "objc2-foundation",
  "objc2-input-method-kit",
  "plist",
+ "qingjian-audio",
  "qingjian-core",
  "qingjian-dictionary",
  "qingjian-learning",
@@ -2635,6 +2688,7 @@ dependencies = [
  "qingjian-render",
  "qingjian-translate",
  "thiserror 2.0.20",
+ "tokio",
  "toml_edit",
  "tracing",
  "tracing-appender",

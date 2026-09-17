@@ -1,0 +1,24 @@
+[package]
+name = "qingjian-audio"
+description = "单词发音：按需下载的缓存、`.qj` 整包库、Wikimedia Commons 抓取"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+# 抓取要 HTTP 客户端与异步运行时，打包工具用不着，所以缺省不开；壳自己打开
+fetch = ["dep:reqwest", "dep:tokio", "dep:serde", "dep:serde_json"]
+
+[dependencies]
+qingjian-format.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+zerocopy.workspace = true
+reqwest = { workspace = true, optional = true, features = ["json", "query", "native-tls"] }
+tokio = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+
+[lints]
+workspace = true
