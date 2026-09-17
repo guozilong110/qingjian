@@ -106,6 +106,9 @@
     （防回环），顺带刷指示器 + 上报 Server 让悬浮状态条也同步。纯 DLL 改动、无新协议。
   - [ ] 发版：换 **Certum 开源代码签名证书**重签（开发全程自签 + 本机受信任根，见 `installer/sign-local.ps1`）、
     `windows-v<版本>` 标签与 CI。
+  - [ ] **单词发音上 Windows**（用户说先不管 Windows，记着待办）：数据层（`qingjian-audio`，含缓存与抓取）已是平台无关的，只差播放与增益：
+    Windows 自带解不了 Ogg Opus（缓存里存的是上游原始文件，多为 ogg），要么带一个解码器、要么下载后转成 wav 存；
+    播放走 MFPlay 或 XAudio2，增益同样乘在样本上；防抖与 macOS 同一个值（350 ms）、密码框不发音也不请求（`Privacy` 协议已有）。
   - [ ] **本地整句模型上 Windows**：Server 已接（`dispatch/rescore/`，CPU 推理，设置「云服务」页有开关，安装包带 `data\model`），待真机验：每次重排的耗时（前文 + 几条路径一次前向，CPU 上可能几十到一百多毫秒，超了就缩前文长度）、模型加载时间；
     应用光标前文已接（DLL 起组句时读、密码框跳过；2026-09-12 真机验过记事本 / Edge / 终端都读得到，Edge 密码框按 `IS_PRIVATE` 识别），真机看沉浸式应用读不读得到；
     模型单文件 `.qjm` 已做（2026-09-12，复用 `.qj` 容器 `Kind::Model`，`find_model` 先 `.qjm` 再三件套目录，`pack model` / `tools/release/pack-model.sh`，

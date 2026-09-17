@@ -41,6 +41,8 @@
 | 词汇等级（统计） | 已用：CEFR-J Wordlist 1.5（A1–B2，免费须署名）+ Octanove C1/C2（CC BY-SA 4.0）；JLPT N5–N1（Tanos CC BY，经 elzup MIT 整理）。四六级 / 商务英语词表在 GitHub 上只有大纲词汇的转录、许可不明，没用 | 已核 | 「统计」页按级数见过 / 看熟 / 上屏过的译词（`assets/levels/`）；也可做英→中 / 日→中方向的种子；不进候选窗口 |
 | emoji | Unicode CLDR 中文与英文 annotations（`cldr-json` 的 `annotations/{zh,en}`、`annotationsDerived/{zh,en}`） | Unicode License v3（宽松，需保留版权声明） | `dict-convert emoji --language zh\|en` → `assets/emoji/emoji-{zh,en}.tsv`，随仓库与发布包提供；许可文本在 `assets/emoji/LICENSE-unicode.txt`。日文表要等有日语输入模式 |
 | 英文词频 | wordfreq（Python 包） | 代码 MIT，数据 CC-BY-SA 等 | 只取每个词的 Zipf 频率数字给英文补全排序，`tools/corpus/english_frequency.py` 生成 `english-frequency.tsv`（gitignore） |
+| 单词发音（真人） | Wikimedia Commons 上英语维基词典的 `En-us-<词>.ogg` 与 Lingua Libre 的 `LL-Q1860 (eng)-<录音人>-<词>.wav` | CC BY-SA / CC BY / CC0 / 公有领域（只拉这几类，其余跳过） | **按需下载**、不随包：释义表里有 3.4 万个不同英文词，预建集合怎么选都对不上（见 `docs/notes/pronunciation.md`）。需**逐条**署名：缓存索引存许可与录音人，「关于」页可导出；预建整包库时 `pack audio` 生成 `audio-attribution.md` |
+| 单词发音（合成） | Kokoro-82M 本地生成 | Apache-2.0 | 补真人录音缺的词；输出无再分发限制，不要求逐条署名。云 TTS（Azure / ElevenLabs）未采用：合成音频能否持久化并随产品分发，各家条款写法不同 |
 
 ## 许可策略
 
@@ -67,5 +69,6 @@
 | emoji | Unicode CLDR annotations（Unicode License v3） |
 | 英文词表 | ESDB / SCOWL（© Kevin Atkinson，按其许可保留版权声明）；CSpell 词典（MIT） |
 | 词汇等级 | The CEFR-J Wordlist Version 1.5（Yukio Tono，Tokyo University of Foreign Studies，[cefr-j.org](http://www.cefr-j.org/download.html)）；Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）；JLPT 词表（[tanos.co.uk](http://www.tanos.co.uk/jlpt/)，CC BY；经 elzup/jlpt-word-list 整理，MIT） |
+| 单词发音 | **不随包**，按需从 [Wikimedia Commons](https://commons.wikimedia.org) 下载真人录音存本机（CC BY-SA / CC BY / CC0 / 公有领域，逐条名单在 `audio-cache/index.tsv`，「关于」页可导出） |
 
 各许可证原文在 `assets/` 对应目录下。雾凇拼音（GPL）已彻底移除，不要再引入。

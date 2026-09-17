@@ -140,6 +140,8 @@ Linux    → IBus / Fcitx
 「青简」名字与 logo 不在授权范围内。青简在官方渠道免费；若你为获得它向他人付费，你被骗了。
 
 随包数据（词库、语言模型、释义表、emoji、英文词表、词汇等级）各自遵循来源的许可证，清单见 [docs/design/landscape.md](docs/design/landscape.md)，偏好设置「关于」页也列了一份。
+单词发音不随包：开着发音时按需从 Wikimedia Commons 下载真人录音（CC BY-SA / CC BY / CC0 / 公有领域）存在本机，
+要求逐条署名，「关于」页的「导出发音署名清单」可导出本机已下载的那些。
 
 ---
 

@@ -64,6 +64,21 @@ TSV 解析、查询与生成工具把 `lue` / `nue` 统一成 `lve` / `nve`。
 `.qj` 数据容器（`Container` mmap 读、`Writer` 写、`Table<T>` / `Text` 零拷贝视图、`hash` 可落盘哈希索引、`Metadata` 名称 / 许可证 / 署名）。
 词库与语言模型都能 `write_qj` / 从 `.qj` 打开，启动 50 ms；`cargo run --release -p qingjian-dict-convert -- pack dict|lm --name … --license …`
 生成 `data/generated/{dict,lm}.qj`，`bundle.sh` 在 TSV 更新时自动重打并只把 `.qj` 打进包。设计见 `docs/design/architecture.md`「数据文件：`.qj` 容器」。
+`Kind` 现有编号 1–7（词库 / 语言模型 / 释义表 / emoji / 英文词表 / 整句模型 / 单词发音库），**已有编号不能改**。
+
+## crates/qingjian-audio
+
+单词发音，两条并行的路，**都不解码**（解码与播放是平台层的事）：
+
+- `AudioCache`：按需下载的缓存目录（一个词一个原始文件 + `index.tsv` 记文件名 / 许可证 / 作者 / 来源页 / 播放增益）。
+  边下边写，所以不用 `.qj`（容器设计上「只整体替换」）。`set_gain` 回填增益、`forget` 删坏条目都整份重写索引（先临时文件再改名）。
+- `AudioLibrary`：整包分发的 `.qj`（`Kind::Audio`，缺省名 `audio-en.qj`）。四个分节 `WORD`（词形 arena）/ `ENTR`（每条 16 字节：位置 + 编码 + 来源）/
+  `HASH`（`qingjian-format::hash` 开放寻址表）/ `BLOB`（音频首尾相接）。缓存攒够了 `pack audio --input <缓存目录>` 打成它就变离线库。
+- `Fetcher`（`fetch` feature，壳打开、打包工具不开）：从 Wikimedia Commons 抓，按 `En-us → En-uk → Lingua Libre` 优先级取，
+  只收 CC0 / CC-BY / 公有领域，必须按请求的标题顺序挑（接口返回的是 pageid 序，照那个顺序会把英音排到美音前）。
+
+词形一律小写查，与 `WordList` 的编码约定一致。`Source`（`Human` / `Synthetic`）跟到播放层是因为两类音频许可不同：
+真人录音（CC-BY-SA / CC0）要逐条署名，合成音（Apache-2.0）不要求。`TARGET_RMS_DBFS` / `MAX_GAIN_DB` 是播放响度目标，与构建管线一致。
 
 ## crates/qingjian-neural
 
@@ -135,6 +150,14 @@ IMK 输入法，源码按 `app / host / imk / candidates / menubar / preferences
 - 本地整句模型：`bundle.sh` 把 `data/model/`（或 `QINGJIAN_MODEL_DIR`）三件套打进 `Resources/model/`，用户目录 `model/` 优先；`host/model/mod.rs` 在后台线程加载并预热（首次 Metal 编译）后
   `set_async_sentence_scorer` 接上，`refresh` 每键先读应用光标前 64 字给 Engine 当前文、查询后 `schedule_rescoring`，`RescoreMonitor` 停键 80 ms 请求、20 ms 轮询，
   结果到了重查一次只重画当前页（翻过页 / 动过高亮不动）；「云服务」页有开关（`[model] enabled`）。
+- 单词发音（`speech/`）：**音频按需下载、不随包**（`bundle.sh` 不带，见 `docs/notes/pronunciation.md`）。四层：
+  `Speaker` 查缓存 / 整包库并播放、`Downloader` 后台线程抓（网络请求绝不在按键回调里）、`SpeakMonitor` 两个 `NSTimer`（停顶 350 ms 防抖 + 150 ms 轮询下载结果）、
+  `audio.rs` 解码补增益播放。缓存在 `~/Library/Application Support/Qingjian/audio-cache/`，整包库放用户目录的 `audio-en.qj` 会被优先用。
+  防抖取 350 ms 是因为翻候选是连敲，一格一声会吵（整句重排那个是 80 ms）。
+  `host/speaking.rs` 的 `word_to_speak` 定读哪个词：英文候选读词本身、其余读第一个英语译词（学习语言必须是 en）、提示气泡不读。
+  **播放前按 RMS 补增益**（乘在解码后的样本上，`AVAudioEngine` 播）：下载来的录音跨 25.5 dB，而 `AVAudioPlayer.volume` 文档范围是 0.0–1.0 不能放大、运行时又没有 ffmpeg 重编码；
+  增益首次算一次写进缓存索引。私密输入（`Engine::is_private`）下既不发音也不请求；同一个词不重复读也不重复请求。
+  配置 `[general] speak_candidate`（缺省关，「通用」页开关 + 缓存状态 + 「清空发音缓存」；「关于」页有「导出发音署名清单」）。
 - 端到端验证可用 `osascript` 的 System Events 往 TextEdit 发按键再读回文本（终端需要辅助功能权限；输入法得在中文模式）。
 
 ## apps/windows
@@ -173,4 +196,7 @@ Server 每次轮询比对用户 `dicts\` 的路径 / mtime / 长度快照，配�
 - `mine`：从语料挖词库没收的高频词并过滤（`oov_filter.rs`：虚词规则 + 相邻字对 PMI≥3，`--candidates` 只重过滤）。
 - `phrases`：挖短语层（两遍扫语料：相邻两词、两段二元都够频的相邻三词，总次数与对话语料次数都 ≥ 2000 + 边界规则，读音由成分词拼出；我的 / 不知道 / 有没有 这类常用词表不收的组合，
   `assets/lexicon/phrases.tsv`；词库已并入过短语时重跑加 `--refresh`）。
-- `pack dict|lm|glossary`：打 `.qj`（释义表也进容器）。
+- `pack dict|lm|glossary|model|audio`：打 `.qj`（释义表也进容器）。
+- 单词发音库三步（详细见 `docs/notes/pronunciation.md`）：`tools/corpus/pronunciation_fetch.py` 从 Wikimedia Commons 拉真人录音（带退避重试与断点续跑，写 `manifest.tsv` 记许可证与作者）→
+  `tools/corpus/pronunciation-normalize.sh` 归一成 Opus 24 kbps 单声道、-20 dBFS RMS → `pack audio` 打成 `audio-en.qj` 并生成署名清单 `audio-attribution.md`（CC-BY-SA 要求逐条署名）。
+  真人录音优先，缺的词用 `tools/corpus/pronunciation_synth.py`（Kokoro-82M，Apache-2.0）补。
