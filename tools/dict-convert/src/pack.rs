@@ -12,11 +12,22 @@ use qingjian_translate::Glossary;
 use crate::args::PackKind;
 use crate::error::ConvertError;
 
+/// `pack audio` 的额外输入：合成音目录、真人录音的 manifest、限定词表。
+#[derive(Debug, Default)]
+pub struct AudioInputs {
+    pub synthetic: Option<PathBuf>,
+
+    pub manifest: Option<PathBuf>,
+
+    pub words: Option<PathBuf>,
+}
+
 /// 打包一种数据。`inputs` 为空时从 `out_dir` 里找缺省的 TSV。
 pub fn pack(
     kind: PackKind,
     inputs: &[PathBuf],
     language: &str,
+    audio: &AudioInputs,
     metadata: Metadata,
     out_dir: &Path,
 ) -> Result<(), ConvertError> {
@@ -75,6 +86,21 @@ pub fn pack(
                 usize::try_from(parameters).unwrap_or(usize::MAX),
                 started,
             );
+        }
+        // audio 的输入是两个目录加两张表，参数比别的种类多，落在 audio.rs 里自己报日志
+        PackKind::Audio => {
+            let human = inputs
+                .first()
+                .cloned()
+                .unwrap_or_else(|| PathBuf::from("data/generated/audio/human-opus"));
+            crate::audio::pack(
+                &human,
+                audio.synthetic.as_deref(),
+                audio.manifest.as_deref(),
+                audio.words.as_deref(),
+                metadata,
+                out_dir,
+            )?;
         }
     }
     Ok(())
